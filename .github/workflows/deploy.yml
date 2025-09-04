@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} # <user>/<repo>
+  IMAGE_NAME: ${{ github.repository }} # Format: username/repo
 
 jobs:
   build-and-push:
@@ -18,22 +18,22 @@ jobs:
       packages: write
 
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # 2. Set up Node.js
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # 3. Install dependencies
+      # 3. Install Dependencies
       - name: Install Dependencies
         run: npm install
 
-      # 4. Build the Vite project
-      - name: Build Vite Project
+      # 4. Build Vite Project
+      - name: Build Project
         run: npm run build
 
       # 5. Log in to GHCR
@@ -44,10 +44,12 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      # 6. Build & Push Docker Image
+      # 6. Build and Push Docker Image to GHCR
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
